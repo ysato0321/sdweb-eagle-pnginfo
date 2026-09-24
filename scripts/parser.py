@@ -6,6 +6,11 @@ class Parser:
 
         p = prompt
         if use_prompt_parser:
-            p = ','.join(map(lambda x: x[0].strip(), prompt_parser.parse_prompt_attention(p)))
+            parse_prompt_attention = getattr(prompt_parser, "parse_prompt_attention", None)
+            if parse_prompt_attention is None:
+                # Newer Neo versions moved attention parsing to the backend.
+                from backend.text_processing.parsing import parse_prompt_attention
+
+            p = ','.join(map(lambda x: x[0].strip(), parse_prompt_attention(p)))
 
         return [ x.strip() for x in p.split(",") if x.strip() != "" ]
